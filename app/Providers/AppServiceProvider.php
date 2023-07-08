@@ -64,6 +64,11 @@ class AppServiceProvider extends ServiceProvider
                     ->items([
                         
                     ]),
+                NavigationGroup::make('Pengaturan')
+                    ->collapsible(false)
+                    ->items([
+                        ...Resources\RoleResource::getNavigationItems()
+                    ]),
             ]);
         });
     }
