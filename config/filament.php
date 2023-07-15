@@ -1,5 +1,8 @@
 <?php
 
+use App\Filament\Pages\DashboardCostume;
+use App\Filament\Resources\SuratMasukResouceResource\Widgets\SuratMasukOverview;
+use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
 use Filament\Http\Middleware\MirrorConfigToSubpackages;
@@ -105,7 +108,7 @@ return [
         'namespace' => 'App\\Filament\\Pages',
         'path' => app_path('Filament/Pages'),
         'register' => [
-            Pages\Dashboard::class,
+            DashboardCostume::class,
         ],
     ],
 
@@ -139,8 +142,11 @@ return [
         'namespace' => 'App\\Filament\\Widgets',
         'path' => app_path('Filament/Widgets'),
         'register' => [
-            Widgets\AccountWidget::class,
-            Widgets\FilamentInfoWidget::class,
+            // Widgets\AccountWidget::class,
+            // Widgets\FilamentInfoWidget::class,
+            SuratMasukOverview::class
+
+
         ],
     ],
 
