@@ -6,6 +6,7 @@ use App\Filament\Resources\UserResource\Pages;
 use App\Filament\Resources\UserResource\RelationManagers;
 use App\Models\User;
 use Filament\Forms;
+use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
@@ -22,6 +23,7 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-user';
     protected static ?string $navigationLabel = 'Pengguna';
+    protected static ?string $navigationGroup = 'Settings';
 
 
     public static function form(Form $form): Form
@@ -32,7 +34,10 @@ class UserResource extends Resource
                 TextInput::make('email')->email()->required(),
                 TextInput::make('password')
                     ->dehydrateStateUsing(fn ($state) => Hash::make($state))
-                    ->dehydrated(fn ($state) => filled($state))
+                    ->dehydrated(fn ($state) => filled($state)),
+                Select::make('role')
+                    ->multiple()
+                    ->relationship('roles', 'name')->preload()
             ]);
     }
 
@@ -69,8 +74,8 @@ class UserResource extends Resource
     {
         return [
             'index' => Pages\ListUsers::route('/'),
-            'create' => Pages\CreateUser::route('/create'),
-            'edit' => Pages\EditUser::route('/{record}/edit'),
+            // 'create' => Pages\CreateUser::route('/create'),
+            // 'edit' => Pages\EditUser::route('/{record}/edit'),
         ];
     }    
 }

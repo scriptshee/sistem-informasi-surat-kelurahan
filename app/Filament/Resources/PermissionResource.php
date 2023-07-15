@@ -2,9 +2,9 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\KategoriSuratResource\Pages;
-use App\Filament\Resources\KategoriSuratResource\RelationManagers;
-use App\Models\Surat\Kategori;
+use App\Filament\Resources\PermissionResource\Pages;
+use App\Filament\Resources\PermissionResource\RelationManagers;
+use App\Models\Permission;
 use Filament\Forms;
 use Filament\Forms\Components\TextInput;
 use Filament\Resources\Form;
@@ -14,22 +14,22 @@ use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
+// use Spatie\Permission\Models\Permission;
 
-class KategoriSuratResource extends Resource
+class PermissionResource extends Resource
 {
-    protected static ?string $model = Kategori::class;
+    protected static ?string $model = Permission::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-adjustments';
-    protected static ?string $navigationLabel = 'Kategori Surat';
-    protected static ?string $navigationGroup = 'Surat';
-
+    protected static ?string $navigationIcon = 'heroicon-o-collection';
+    protected static ?string $navigationGroup = 'Settings';
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                TextInput::make('kategori')
-                    ->required()
+               TextInput::make('name')
+                ->unique()
+                ->required()
             ]);
     }
 
@@ -37,14 +37,14 @@ class KategoriSuratResource extends Resource
     {
         return $table
             ->columns([
-                TextColumn::make('kategori')
-                ->searchable()
+                TextColumn::make('name')
             ])
             ->filters([
                 //
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
@@ -61,9 +61,9 @@ class KategoriSuratResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListKategoriSurats::route('/'),
-            'create' => Pages\CreateKategoriSurat::route('/create'),
-            'edit' => Pages\EditKategoriSurat::route('/{record}/edit'),
+            'index' => Pages\ListPermissions::route('/'),
+            // 'create' => Pages\CreatePermission::route('/create'),
+            // 'edit' => Pages\EditPermission::route('/{record}/edit'),
         ];
     }    
 }
