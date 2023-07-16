@@ -13,6 +13,7 @@ use Filament\Forms\Components\Card;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
@@ -65,7 +66,12 @@ class SuratMasukResource extends Resource
                             ->disk('local')
                             ->directory('surat-masuk')
                             ->visibility('public')
-                            ->acceptedFileTypes(['application/pdf']),
+                            ->acceptedFileTypes(['application/pdf'])
+                            ->enableDownload(),
+                        Select::make('approved_by')
+                            ->relationship('approvedBy', 'name')
+                            ->disabled()
+                            ->visibleOn('edit')
                     ])
             ]);
     }
@@ -84,7 +90,9 @@ class SuratMasukResource extends Resource
                 TextColumn::make('atasNama.name')
                     ->label('Tujuan')
                     ->searchable(),
+                TextColumn::make('status'),
                 IconColumn::make('disposisi')
+                    ->label('Disposisi')
                     ->options([
                         'heroicon-o-x-circle' => fn ($state): bool => $state == 0,
                         'heroicon-o-check-circle' => fn ($state): bool => $state == 1,
@@ -92,10 +100,16 @@ class SuratMasukResource extends Resource
                         'secondary',
                         'success' => 1,
                     ]),
-                TextColumn::make('status'),
             ])
             ->filters([
-                //
+                Tables\Filters\SelectFilter::make('status')
+                    ->options([
+                        'new' => 'Baru',
+                        'process' => 'Diproses',
+                        'disposition' => 'Disposisi',
+                        'rejected' => 'Ditolak',
+                        'finis' => 'Selesai'
+                    ])
             ])
             ->actions([
                 Tables\Actions\ActionGroup::make([
@@ -114,8 +128,15 @@ class SuratMasukResource extends Resource
                                 ->options(User::all()->pluck("name", "id"))
                                 ->searchable()
                                 ->required(),
-                        ])->visible(fn() => Auth::user()->hasRole(['admin', 'sekretaris']))
-                ])
+                        ])->visible(fn () => Auth::user()->hasRole(['admin', 'lurah'])),
+                ]),
+                Tables\Actions\Action::make('Approve')
+                    ->action(function ($record) : void{
+                        $record->approved_by = Auth::user()->id;
+                        $record->save();
+                    })
+                    ->requiresConfirmation()
+                    ->visible(fn () => Auth::user()->hasRole(['admin', 'lurah'])),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
