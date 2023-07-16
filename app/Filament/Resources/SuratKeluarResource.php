@@ -28,6 +28,7 @@ class SuratKeluarResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-archive';
     protected static ?string $navigationLabel = 'Surat Keluar';
     protected static ?string $navigationGroup = 'Surat';
+    protected static ?string $label = 'SuratKeluar';
 
     public static function form(Form $form): Form
     {
@@ -118,5 +119,10 @@ class SuratKeluarResource extends Resource
             // 'create' => Pages\CreateSuratKeluar::route('/create'),
             // 'edit' => Pages\EditSuratKeluar::route('/{record}/edit'),
         ];
+    }
+
+    protected static function getNavigationBadge(): ?string
+    {
+        return SuratKeluar::where('status', 'new')->count();
     }
 }

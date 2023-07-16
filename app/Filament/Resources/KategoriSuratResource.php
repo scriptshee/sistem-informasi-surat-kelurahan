@@ -21,6 +21,7 @@ class KategoriSuratResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-adjustments';
     protected static ?string $navigationLabel = 'Kategori Surat';
+    protected static ?string $label = 'KategoriSurat';
     protected static ?string $navigationGroup = 'Surat';
 
 

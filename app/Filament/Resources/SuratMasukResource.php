@@ -32,6 +32,7 @@ class SuratMasukResource extends Resource
     protected static ?string $navigationIcon = 'heroicon-o-inbox-in';
     protected static ?string $navigationLabel = 'Surat Masuk';
     protected static ?string $navigationGroup = 'Surat';
+    protected static ?string $label = 'SuratMasuk';
 
 
     public static function form(Form $form): Form
@@ -133,7 +134,7 @@ class SuratMasukResource extends Resource
                         ])->visible(fn () => Auth::user()->hasRole(['admin', 'lurah'])),
                 ]),
                 Tables\Actions\Action::make('Approve')
-                    ->action(function ($record) : void{
+                    ->action(function ($record): void {
                         $record->approved_by = Auth::user()->id;
                         $record->save();
                     })
@@ -159,5 +160,10 @@ class SuratMasukResource extends Resource
             'create' => Pages\CreateSuratMasuk::route('/create'),
             // 'edit' => Pages\EditSuratMasuk::route('/{record}/edit'),
         ];
+    }
+
+    protected static function getNavigationBadge(): ?string
+    {
+        return Masuk::where('status', 'new')->count();
     }
 }
