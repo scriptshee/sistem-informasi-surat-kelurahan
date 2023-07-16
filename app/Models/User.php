@@ -45,6 +45,6 @@ class User extends Authenticatable
 
     public function canAccessFilament(): bool
     {
-        return true;
+        return str_ends_with($this->email, '@*');
     }
 }
