@@ -6,12 +6,14 @@ use App\Models\Bagian;
 use App\Models\Permission;
 use App\Models\Role;
 use App\Models\Surat\Kategori;
+use App\Models\Surat\Keluar;
 use App\Models\Surat\Masuk;
 use App\Models\User;
 use App\Policies\BagianPolicy;
 use App\Policies\PermissionPolicy;
 use App\Policies\RolePolicy;
 use App\Policies\SuratKategoriPolicy;
+use App\Policies\SuratKeluarPolicy;
 use App\Policies\SuratMasukPolicy;
 use App\Policies\UserPolicy;
 use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvider;
@@ -32,6 +34,7 @@ class AuthServiceProvider extends ServiceProvider
         Kategori::class => SuratKategoriPolicy::class,
         Permission::class => PermissionPolicy::class,
         Role::class => RolePolicy::class,
+        Keluar::class => SuratKeluarPolicy::class
     ];
 
     /**
