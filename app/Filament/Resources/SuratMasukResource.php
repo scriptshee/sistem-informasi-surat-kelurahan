@@ -114,6 +114,8 @@ class SuratMasukResource extends Resource
             ->actions([
                 Tables\Actions\ActionGroup::make([
                     Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make()
+                        ->visible(fn () => Auth::user()->hasRole(['admin', 'sekretaris'])),
                     Tables\Actions\Action::make('disposisi')
                         ->action(function (array $data, $record): void {
                             $record->atas_nama = $data['atas_nama'];

@@ -2,6 +2,7 @@
 
 use App\Filament\Pages\DashboardCostume;
 use App\Filament\Resources\SuratMasukResouceResource\Widgets\SuratMasukOverview;
+use App\Filament\Resources\SuratMasukResource\Widgets\SuratMasukChart;
 use Filament\Facades\Filament;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -144,9 +145,8 @@ return [
         'register' => [
             // Widgets\AccountWidget::class,
             // Widgets\FilamentInfoWidget::class,
-            SuratMasukOverview::class
-
-
+            SuratMasukOverview::class,
+            SuratMasukChart::class
         ],
     ],
 
