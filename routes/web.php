@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-
+use App\Http\Controllers\LoginController;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -16,3 +16,9 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return redirect('/admin/login');
 });
+
+Route::get('/admin/login', [LoginController::class, 'index'])->name('filament.auth.login');
+Route::post('/auth/login', [LoginController::class, 'authenticate']);
+
+// Route::
+// s
