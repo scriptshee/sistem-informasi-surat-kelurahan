@@ -147,7 +147,7 @@ return [
         'register' => [
             SuratMasukOverview::class,
             SuratMasukNew::class,
-            SuratKeluarNew::class,
+            // SuratKeluarNew::class,
         ],
     ],
 

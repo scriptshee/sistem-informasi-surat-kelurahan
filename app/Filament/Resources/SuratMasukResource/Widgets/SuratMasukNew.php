@@ -21,11 +21,17 @@ class SuratMasukNew extends BaseWidget
     protected function getTableColumns(): array
     {
         return [
-           TextColumn::make('created_at')->date(),
-           TextColumn::make('perihal'),
-           TextColumn::make('pengirim'),
-           TextColumn::make('atas_nama'),
-           TextColumn::make('status'),
+            TextColumn::make('created_at')->date(),
+            TextColumn::make('perihal'),
+            TextColumn::make('pengirim'),
+            TextColumn::make('atasNama.name'),
+            TextColumn::make('status')->enum([
+                'new' => 'Baru',
+                'process' => 'Dalam Proses',
+                'disposition' => 'Disposisi',
+                'rejected' => 'Ditolak',
+                'finis' => 'Selesai'
+            ]),
         ];
     }
 }

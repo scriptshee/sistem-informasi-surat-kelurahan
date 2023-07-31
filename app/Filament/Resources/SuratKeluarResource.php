@@ -46,7 +46,7 @@ class SuratKeluarResource extends Resource
                     ->required()
                     ->relationship('author', 'name')->preload(),
                 FileUpload::make('file')
-                    ->disk('local')
+                    ->disk('public')
                     ->directory('surat-keluar')
                     ->visibility('public')
                     ->acceptedFileTypes(['application/pdf'])

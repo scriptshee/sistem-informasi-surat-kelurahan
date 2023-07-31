@@ -23,6 +23,7 @@ use Filament\Tables\Columns\TextColumn;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Actions\Modal\Actions\Action;
+use Filament\Tables\Columns\SelectColumn;
 use Illuminate\Support\Facades\Auth;
 
 class SuratMasukResource extends Resource
@@ -64,7 +65,7 @@ class SuratMasukResource extends Resource
                             ->searchable()
                             ->required(),
                         FileUpload::make('file')
-                            ->disk('local')
+                            ->disk('public')
                             ->directory('surat-masuk')
                             ->visibility('public')
                             ->acceptedFileTypes(['application/pdf'])
@@ -91,7 +92,13 @@ class SuratMasukResource extends Resource
                 TextColumn::make('atasNama.name')
                     ->label('Tujuan')
                     ->searchable(),
-                TextColumn::make('status'),
+                TextColumn::make('status')->enum([
+                    'new' => 'Baru',
+                    'process' => 'Dalam Proses',
+                    'disposition' => 'Disposisi',
+                    'rejected' => 'Ditolak',
+                    'finis' => 'Selesai'
+                ]),
                 IconColumn::make('disposisi')
                     ->label('Disposisi')
                     ->options([
@@ -100,6 +107,15 @@ class SuratMasukResource extends Resource
                     ])->colors([
                         'secondary',
                         'success' => 1,
+                    ]),
+                IconColumn::make('approved_by')
+                    ->label('Approve')
+                    ->options([
+                        'heroicon-o-x-circle' => fn ($state): bool => $state == null,
+                        'heroicon-o-check-circle' => fn ($state): bool => $state != null,
+                    ])->colors([
+                        'secondary',
+                        'success' => fn ($state): bool => $state !=  null,
                     ]),
             ])
             ->filters([
@@ -113,10 +129,27 @@ class SuratMasukResource extends Resource
                     ])
             ])
             ->actions([
+
+                Tables\Actions\Action::make('Proccess')
+                    ->action(function ($record): void {
+                        $record->status = 'process';
+                        $record->save();
+                    })
+                    ->requiresConfirmation()
+                    ->visible(fn ($record) => Auth::user()->hasRole(['admin', 'sekretaris']) && $record->status == 'new'),
+                    // Print
+                    Tables\Actions\Action::make('Proccess')
+                    ->label('')
+                    ->icon('heroicon-s-printer')
+                    ->url(fn($record): string => url(sprintf("/storage/%s", $record->file))),
                 Tables\Actions\ActionGroup::make([
-                    Tables\Actions\EditAction::make(),
+                    // edit
+                    Tables\Actions\EditAction::make()
+                        ->visible(fn ($record) => $record->status == 'new'),
+                    // delete
                     Tables\Actions\DeleteAction::make()
-                        ->visible(fn () => Auth::user()->hasRole(['admin', 'sekretaris'])),
+                        ->visible(fn ($record) => Auth::user()->hasRole(['admin', 'sekretaris']) && $record->status == 'new'),
+                    // disposisi
                     Tables\Actions\Action::make('disposisi')
                         ->action(function (array $data, $record): void {
                             $record->atas_nama = $data['atas_nama'];
@@ -131,19 +164,55 @@ class SuratMasukResource extends Resource
                                 ->options(User::all()->pluck("name", "id"))
                                 ->searchable()
                                 ->required(),
-                        ])->visible(fn () => Auth::user()->hasRole(['admin', 'lurah'])),
+                        ])
+                        ->icon('heroicon-s-switch-horizontal')
+                        ->visible(function ($record) {
+                            if(Auth::user()->hasRole(['admin', 'lurah'])  && $record->status == array('process', 'disposition')) {
+                                return true;
+                            } else {
+                                return false;
+                            }
+                        }),
+                    // approve
+                    Tables\Actions\Action::make('Approve')
+                        ->action(function ($record): void {
+                            $record->approved_by = Auth::user()->id;
+                            $record->save();
+                        })
+                        ->requiresConfirmation()
+                        ->icon('heroicon-s-thumb-up')
+                        ->visible(fn ($record) => Auth::user()->hasRole(['admin', 'lurah']) && $record->approved_by == null && $record->status != 'rejected'),
+                    // approve
+                    Tables\Actions\Action::make('Reject')
+                        ->action(function ($record): void {
+                            $record->status = "rejected";
+                            $record->save();
+                        })
+                        ->requiresConfirmation()
+                        ->icon('heroicon-s-thumb-down')
+                        ->visible(function ($record) {
+                            if(Auth::user()->hasRole(['admin', 'lurah']) ) {
+                                if($record->status == 'process' || $record->status == 'disposition' && $record->approved_by == null){
+                                    return true;
+                                }
+                            }else {
+                                return false;
+                            }
+                        })->disabled(fn($record) => $record->approvedBy != null),
+                    // finish
+                    Tables\Actions\Action::make('Selesaikan')
+                        ->action(function ($record): void {
+                            $record->status = "finis";
+                            $record->save();
+                        })
+                        ->requiresConfirmation()
+                        ->icon('heroicon-s-flag')
+                        ->visible(fn($record) => Auth::user()->hasRole(['admin', 'sekretaris', 'lurah']) && $record->approved_by != null && $record->status != 'finis')
                 ]),
-                Tables\Actions\Action::make('Approve')
-                    ->action(function ($record): void {
-                        $record->approved_by = Auth::user()->id;
-                        $record->save();
-                    })
-                    ->requiresConfirmation()
-                    ->visible(fn () => Auth::user()->hasRole(['admin', 'lurah'])),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
-            ]);
+            ])->defaultSort('created_at', 'asc');
     }
 
     public static function getRelations(): array
@@ -164,6 +233,6 @@ class SuratMasukResource extends Resource
 
     protected static function getNavigationBadge(): ?string
     {
-        return Masuk::where('status', 'new')->count();
+        return Masuk::where('approved_by', '==', null)->count();
     }
 }

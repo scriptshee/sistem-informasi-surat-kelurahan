@@ -12,7 +12,7 @@ class SuratMasukOverview extends BaseWidget
     {
         $totalSuratMasuk = Masuk::count();
         $totalDisposisi = Masuk::where('status', 'disposition')->count();
-        $totalDisposisi = Masuk::where('status', 'disposition')->count();
+        $totalDisposisi = Masuk::where('disposisi', 1)->count();
         $totalRejected = Masuk::where('status', 'rejected')->count();
         $totalFinish = Masuk::where('status', 'finis')->count();
         return [
