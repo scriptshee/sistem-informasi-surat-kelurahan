@@ -4,7 +4,7 @@ namespace App\Filament\Resources;
 
 use App\Filament\Resources\ReportSuratKeluarResource\Pages;
 use App\Filament\Resources\ReportSuratKeluarResource\RelationManagers;
-use App\Models\Surat\Keluar as ReportSuratKeluar;
+use App\Models\Surat\Keluar;
 use Filament\Forms;
 use Filament\Resources\Form;
 use Filament\Resources\Resource;
@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\SoftDeletingScope;
 
 class ReportSuratKeluarResource extends Resource
 {
-    protected static ?string $model = ReportSuratKeluar::class;
+    protected static ?string $model = Keluar::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-archive';
     protected static ?string $navigationLabel = 'Surat Keluar';
@@ -38,13 +38,18 @@ class ReportSuratKeluarResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('created_at')
-                    ->label('Dibuat'),
-                TextColumn::make('updated_at')
-                    ->label('Diupdate'),
+                    ->label('Dibuat')
+                    ->sortable(),
                 TextColumn::make('perihal')
                     ->searchable(),
                 TextColumn::make('tujuan'),
                 TextColumn::make('status')
+                ->sortable()
+                ->enum([
+                    'new' => 'Baru',
+                    'process' => 'Proses',
+                    'finish' => 'Selesai'
+                ]),
             ])
             ->filters([
                 Filter::make('created_at')
@@ -66,6 +71,10 @@ class ReportSuratKeluarResource extends Resource
             ])
             ->actions([
                 // Tables\Actions\EditAction::make(),
+                Tables\Actions\Action::make('Print')
+                    ->label('')
+                    ->icon('heroicon-s-printer')
+                    ->url(fn ($record): string => url(sprintf("/storage/%s", $record->file))),
             ])
             ->bulkActions([
                 // Tables\Actions\DeleteBulkAction::make(),

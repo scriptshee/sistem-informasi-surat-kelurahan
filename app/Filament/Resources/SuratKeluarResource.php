@@ -66,7 +66,12 @@ class SuratKeluarResource extends Resource
                     ->searchable(),
                 TextColumn::make('approve.name'),
                 TextColumn::make('status')
-                    ->sortable(),
+                    ->sortable()
+                    ->enum([
+                        'new' => 'Baru',
+                        'process' => 'Proses',
+                        'finish' => 'Selesai'
+                    ]),
             ])
             ->filters([
                 SelectFilter::make('status')
