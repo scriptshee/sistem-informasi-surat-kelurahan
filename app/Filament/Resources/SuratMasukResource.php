@@ -138,7 +138,7 @@ class SuratMasukResource extends Resource
                     ->requiresConfirmation()
                     ->visible(fn ($record) => Auth::user()->hasRole(['admin', 'sekretaris']) && $record->status == 'new'),
                     // Print
-                    Tables\Actions\Action::make('Proccess')
+                    Tables\Actions\Action::make('Print')
                     ->label('')
                     ->icon('heroicon-s-printer')
                     ->url(fn($record): string => url(sprintf("/storage/%s", $record->file))),
@@ -166,14 +166,15 @@ class SuratMasukResource extends Resource
                                 ->required(),
                         ])
                         ->icon('heroicon-s-switch-horizontal')
-                        ->visible(function ($record) {
-                            if(Auth::user()->hasRole(['admin', 'lurah'])  && $record->status == array('process', 'disposition')) {
-                                return true;
-                            } else {
-                                return false;
-                            }
-                        }),
-                    // approve
+                        ->visible(fn($record) => Auth::user()->hasRole(['admin', 'lurah']) && $record->status == 'process'),
+                    //     ->visible(function ($record) {
+                    //         if(Auth::user()->hasRole(['admin', 'lurah'])  && $record->status == array('process')) {
+                    //             return true;
+                    //         } else {
+                    //             return false;
+                    //         }
+                    //     }),
+                    // // approve
                     Tables\Actions\Action::make('Approve')
                         ->action(function ($record): void {
                             $record->approved_by = Auth::user()->id;
