@@ -18,7 +18,7 @@ class SuratMasukPolicy
      */
     public function viewAny(User $user)
     {
-        return $user->hasRole(['admin', 'sekretaris', 'lurah', 'staff']);
+        return $user->hasRole(['admin', 'sekretaris', 'lurah', 'staff', 'pelayanan']);
     }
 
     /**
@@ -30,7 +30,7 @@ class SuratMasukPolicy
      */
     public function view(User $user, Masuk $masuk)
     {
-        return $user->hasRole(['admin', 'sekretaris', 'lurah', ]);
+        return $user->hasRole(['admin', 'sekretaris', 'lurah', 'pelayanan']);
     }
 
     /**
@@ -41,7 +41,7 @@ class SuratMasukPolicy
      */
     public function create(User $user)
     {
-        return $user->hasRole(['admin', 'sekretaris']);
+        return $user->hasRole(['admin', 'sekretaris', 'pelayanan']);
     }
 
     /**
