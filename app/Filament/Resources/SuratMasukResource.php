@@ -232,9 +232,4 @@ class SuratMasukResource extends Resource
             // 'edit' => Pages\EditSuratMasuk::route('/{record}/edit'),
         ];
     }
-
-    protected static function getNavigationBadge(): ?string
-    {
-        return Masuk::where('approved_by', '==', null)->count();
-    }
 }

@@ -131,8 +131,4 @@ class SuratKeluarResource extends Resource
         ];
     }
 
-    protected static function getNavigationBadge(): ?string
-    {
-        return SuratKeluar::where('status', 'new')->count();
-    }
 }
