@@ -98,6 +98,11 @@ class SuratKeluarResource extends Resource
                     ->requiresConfirmation()
                     ->disabled(fn ($record) => $record->status == 'new' ? false : true)
                     ->visible(fn () => Auth::user()->hasRole(['admin', 'sekretaris'])),
+                // Print
+                Tables\Actions\Action::make('Print')
+                    ->label('')
+                    ->icon('heroicon-s-printer')
+                    ->url(fn ($record): string => url(sprintf("/storage/%s", $record->file))),
                 Tables\Actions\EditAction::make(),
             ])
             ->bulkActions([

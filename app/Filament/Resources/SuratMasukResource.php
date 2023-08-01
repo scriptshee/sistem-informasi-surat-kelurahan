@@ -98,7 +98,7 @@ class SuratMasukResource extends Resource
                     'disposition' => 'Disposisi',
                     'rejected' => 'Ditolak',
                     'finis' => 'Selesai'
-                ]),
+                ])->sortable(),
                 IconColumn::make('disposisi')
                     ->label('Disposisi')
                     ->options([
@@ -107,16 +107,17 @@ class SuratMasukResource extends Resource
                     ])->colors([
                         'secondary',
                         'success' => 1,
-                    ]),
+                    ])->sortable(),
                 IconColumn::make('approved_by')
                     ->label('Approve')
+                    ->sortable()
                     ->options([
                         'heroicon-o-x-circle' => fn ($state): bool => $state == null,
                         'heroicon-o-check-circle' => fn ($state): bool => $state != null,
                     ])->colors([
                         'secondary',
                         'success' => fn ($state): bool => $state !=  null,
-                    ]),
+                    ])->sortable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('status')
@@ -137,11 +138,11 @@ class SuratMasukResource extends Resource
                     })
                     ->requiresConfirmation()
                     ->visible(fn ($record) => Auth::user()->hasRole(['admin', 'sekretaris']) && $record->status == 'new'),
-                    // Print
-                    Tables\Actions\Action::make('Print')
+                // Print
+                Tables\Actions\Action::make('Print')
                     ->label('')
                     ->icon('heroicon-s-printer')
-                    ->url(fn($record): string => url(sprintf("/storage/%s", $record->file))),
+                    ->url(fn ($record): string => url(sprintf("/storage/%s", $record->file))),
                 Tables\Actions\ActionGroup::make([
                     // edit
                     Tables\Actions\EditAction::make()
@@ -166,7 +167,7 @@ class SuratMasukResource extends Resource
                                 ->required(),
                         ])
                         ->icon('heroicon-s-switch-horizontal')
-                        ->visible(fn($record) => Auth::user()->hasRole(['admin', 'lurah']) && $record->status == 'process'),
+                        ->visible(fn ($record) => Auth::user()->hasRole(['admin', 'lurah']) && $record->status == 'process'),
                     //     ->visible(function ($record) {
                     //         if(Auth::user()->hasRole(['admin', 'lurah'])  && $record->status == array('process')) {
                     //             return true;
@@ -192,14 +193,14 @@ class SuratMasukResource extends Resource
                         ->requiresConfirmation()
                         ->icon('heroicon-s-thumb-down')
                         ->visible(function ($record) {
-                            if(Auth::user()->hasRole(['admin', 'lurah']) ) {
-                                if($record->status == 'process' || $record->status == 'disposition' && $record->approved_by == null){
+                            if (Auth::user()->hasRole(['admin', 'lurah'])) {
+                                if ($record->status == 'process' || $record->status == 'disposition' && $record->approved_by == null) {
                                     return true;
                                 }
-                            }else {
+                            } else {
                                 return false;
                             }
-                        })->disabled(fn($record) => $record->approvedBy != null),
+                        })->disabled(fn ($record) => $record->approvedBy != null),
                     // finish
                     Tables\Actions\Action::make('Selesaikan')
                         ->action(function ($record): void {
@@ -208,7 +209,7 @@ class SuratMasukResource extends Resource
                         })
                         ->requiresConfirmation()
                         ->icon('heroicon-s-flag')
-                        ->visible(fn($record) => Auth::user()->hasRole(['admin', 'sekretaris', 'lurah']) && $record->approved_by != null && $record->status != 'finis')
+                        ->visible(fn ($record) => Auth::user()->hasRole(['admin', 'sekretaris', 'lurah']) && $record->approved_by != null && $record->status != 'finis')
                 ]),
             ])
             ->bulkActions([
