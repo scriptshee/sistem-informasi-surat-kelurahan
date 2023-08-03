@@ -18,6 +18,7 @@ class Keluar extends Model
         'author_id',
         'file',
         'approved_by',
+        'revisi',
         'status',
     ];
     

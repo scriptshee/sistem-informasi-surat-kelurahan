@@ -14,6 +14,7 @@ use Filament\Resources\Form;
 use Filament\Resources\Resource;
 use Filament\Resources\Table;
 use Filament\Tables;
+use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\Filter;
 use Filament\Tables\Filters\SelectFilter;
@@ -65,6 +66,15 @@ class SuratKeluarResource extends Resource
                 TextColumn::make('tujuan')
                     ->searchable(),
                 TextColumn::make('approve.name'),
+                IconColumn::make('revisi')
+                    ->label('Revisi')
+                    ->options([
+                        'heroicon-o-x-circle' => fn ($state): bool => $state == 0,
+                        'heroicon-o-check-circle' => fn ($state): bool => $state == 1,
+                    ])->colors([
+                        'secondary',
+                        'success' => 1,
+                    ])->sortable(),
                 TextColumn::make('status')
                     ->sortable()
                     ->enum([
@@ -72,6 +82,7 @@ class SuratKeluarResource extends Resource
                         'process' => 'Proses',
                         'finish' => 'Selesai'
                     ]),
+                TextColumn::make('updated_at')
             ])
             ->filters([
                 SelectFilter::make('status')
@@ -92,7 +103,18 @@ class SuratKeluarResource extends Resource
                     })
                     ->requiresConfirmation()
                     ->disabled(fn ($record) => $record->status == 'process' ? false : true)
-                    ->visible(fn () => Auth::user()->hasRole(['admin', 'lurah'])),
+                    ->visible(fn ($record) => Auth::user()->hasRole(['admin', 'lurah']) &&  $record->status == 'process'),
+                Tables\Actions\Action::make('revisi')
+                    ->color('success')
+                    ->icon('heroicon-o-cursor-click')
+                    ->action(function ($record): void {
+                        $record->approved_by = Auth::user()->id;
+                        $record->revisi = 1;
+                        $record->save();
+                    })
+                    ->requiresConfirmation()
+                    ->disabled(fn ($record) => $record->status == 'process' ? false : true)
+                    ->visible(fn ($record) => Auth::user()->hasRole(['admin', 'lurah']) &&  $record->status == 'process'),
                 Tables\Actions\Action::make('Process')
                     ->color('success')
                     ->icon('heroicon-o-cursor-click')
@@ -102,13 +124,13 @@ class SuratKeluarResource extends Resource
                     })
                     ->requiresConfirmation()
                     ->disabled(fn ($record) => $record->status == 'new' ? false : true)
-                    ->visible(fn () => Auth::user()->hasRole(['admin', 'sekretaris'])),
+                    ->visible(fn ($record) => Auth::user()->hasRole(['admin', 'sekretaris']) && $record->status == 'new'),
                 // Print
                 Tables\Actions\Action::make('Print')
                     ->label('')
                     ->icon('heroicon-s-printer')
                     ->url(fn ($record): string => url(sprintf("/storage/%s", $record->file))),
-                Tables\Actions\EditAction::make(),
+                Tables\Actions\EditAction::make()->visible(fn ($record) => $record->status != 'finish'),
             ])
             ->bulkActions([
                 Tables\Actions\DeleteBulkAction::make(),
@@ -130,5 +152,4 @@ class SuratKeluarResource extends Resource
             // 'edit' => Pages\EditSuratKeluar::route('/{record}/edit'),
         ];
     }
-
 }
